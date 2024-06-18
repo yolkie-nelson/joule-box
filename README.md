@@ -1,3 +1,51 @@
+# Joule Box Green Energy Dashboard
+
+## Overview
+
+The Joule Box Green Energy Dashboard is a web-based application designed to monitor and manage the efficiency of battery storage for renewable energy. The dashboard displays real-time data on battery charge levels, energy output, and financial metrics related to energy sold back to the grid.
+
+## Features
+
+- Battery Inventory Management
+- Real-Time Data Processing
+- User Authentication and Management
+- Data Visualization and Reports
+- Notifications and Alerts
+- Data Storage and Backup
+- Performance and Optimization
+- Serverless Architecture
+
+## Tech Stack
+
+- **Backend**: Node.js, Express, AWS Lambda, AWS API Gateway, AWS SSM, PostgreSQL, MongoDB, DynamoDB, Redshift
+- **Frontend**: React, TypeScript
+- **Infrastructure**: Docker, AWS S3, AWS CloudFront, AWS CloudWatch
+
+## Prerequisites
+
+- Node.js (version 14.x or later)
+- Docker
+- AWS CLI configured with necessary permissions
+- Serverless Framework
+
+## Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd joule-box
+
+
+
+
+
+
+
+
+
+
+
 
 # Serverless Framework with JavaScript
 

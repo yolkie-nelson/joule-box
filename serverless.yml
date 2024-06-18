@@ -1,15 +1,23 @@
-service: gitlab-js-serverless-example
+service: joule-box-backend
+
 provider:
   name: aws
-  region: ${env:AWS_REGION}
-  runtime: nodejs10.x
+  region: us-east-1
+  runtime: nodejs14.x
   environment:
-    A_VARIABLE: ${env:A_VARIABLE}
+    DATABASE_URL: ${ssm:/joule-box-backend/DATABASE_URL}
+    MONGO_URI: ${ssm:/joule-box-backend/MONGO_URI}
+    DYNAMODB_ENDPOINT: ${ssm:/joule-box-backend/DYNAMODB_ENDPOINT}
+    REDSHIFT_URL: ${ssm:/joule-box-backend/REDSHIFT_URL}
+    COGNITO_USER_POOL_ID: ${ssm:/joule-box-backend/COGNITO_USER_POOL_ID}
+    COGNITO_CLIENT_ID: ${ssm:/joule-box-backend/COGNITO_CLIENT_ID}
+    KINESIS_FIREHOSE: ${ssm:/joule-box-backend/KINESIS_FIREHOSE}
+    S3_BUCKET: ${ssm:/joule-box-backend/S3_BUCKET}
 
 plugins:
   - serverless-offline
   - serverless-jest-plugin
-  - serverless-stack-output # Allows us to output endpoint url to json file
+  - serverless-stack-output
 
 functions:
   hello:
@@ -18,6 +26,14 @@ functions:
       - http:
           path: hello
           method: get
+          cors: true
+
+  api:
+    handler: api/server.handler
+    events:
+      - http:
+          path: /api/{proxy+}
+          method: ANY
           cors: true
 
 custom:
