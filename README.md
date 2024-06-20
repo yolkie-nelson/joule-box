@@ -1,4 +1,4 @@
-# Joule Box Green Energy Dashboard
+![Img](images/joule-box-logo.png)
 
 ## Overview
 
