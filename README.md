@@ -1,4 +1,6 @@
-![Img](images/joule-box-logo.png)
+<center>
+ <img src ="images/joule-box-logo.png">
+</center>
 
 ## Overview
 
