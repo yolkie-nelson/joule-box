@@ -3,14 +3,14 @@ service: joule-box-backend
 provider:
   name: aws
   region: us-east-1
-  runtime: nodejs14.x
+  runtime: nodejs20.x
   environment:
     DATABASE_URL: ${ssm:/joule-box-backend/DATABASE_URL}
     MONGO_URI: ${ssm:/joule-box-backend/MONGO_URI}
     DYNAMODB_ENDPOINT: ${ssm:/joule-box-backend/DYNAMODB_ENDPOINT}
     REDSHIFT_URL: ${ssm:/joule-box-backend/REDSHIFT_URL}
-    COGNITO_USER_POOL_ID: ${ssm:/joule-box-backend/COGNITO_USER_POOL_ID}
-    COGNITO_CLIENT_ID: ${ssm:/joule-box-backend/COGNITO_CLIENT_ID}
+    USER_POOL_ID: ${ssm:/joule-box-backend/USER_POOL_ID~true}
+    CLIENT_ID: ${ssm:/joule-box-backend/CLIENT_ID~true}
     KINESIS_FIREHOSE: ${ssm:/joule-box-backend/KINESIS_FIREHOSE}
     S3_BUCKET: ${ssm:/joule-box-backend/S3_BUCKET}
 

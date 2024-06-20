@@ -35,45 +35,197 @@ The Joule Box Green Energy Dashboard is a web-based application designed to moni
 ```bash
 git clone <your-repo-url>
 cd joule-box
-
-
-
-
-
-
-
-
-
-
-
-
-# Serverless Framework with JavaScript
-
----
-
-Example project using the [Serverless Framework](https://serverless.com), JavaScript, AWS Lambda, AWS API Gateway and GitLab Pages.
-
----
-
-## Deployment
-
-### Secrets
-
-Secrets are injected into your functions using environment variables. By defining variables in the provider section of the `serverless.yml` you add them to the environment of the deployed function. From there, you can reference them in your functions as well.
-
-So you would add something like:
-
-```yml
-provider:
-  environment:
-    A_VARIABLE: ${env:A_VARIABLE}
 ```
 
-to your `serverless.yml`, and then you can add `A_VARIABLE` to your GitLab Ci variables and it will get picked up and deployed with your function.
+### 2. Set Up Environment Variables
 
-For local development, we suggest installing something like [dotenv](https://www.npmjs.com/package/dotenv) to manage environment variables.
+```
+PORT=8000
+REDSHIFT_URL=your_redshift_connection_string
+DATABASE_URL=your_postgres_database_url
+MONGO_URI=your_mongo_uri
+DYNAMODB_ENDPOINT=your_dynamodb_endpoint
+COGNITO_USER_POOL_ID=your_cognito_user_pool_id
+COGNITO_CLIENT_ID=your_cognito_client_id
+KINESIS_FIREHOSE=your_kinesis_firehose
+S3_BUCKET=joulebox-data
+```
 
-### Setting Up AWS
+### 3. Install Dependencies
+
+#### Backend
+```
+cd api
+npm install
+```
+
+#### Frontend
+```
+cd ../src
+npm install
+```
+
+### 4. Set Up AWS Services
+
+1. S3 Bucket
+Ensure you have an S3 bucket created and named joulebox-data.
+
+2. Redshift
+Create a Redshift Serverless endpoint.
+Obtain the connection string and update the .env file with REDSHIFT_URL.
+3. Kinesis Firehose
+Create a Kinesis Firehose delivery stream.
+Update the .env file with KINESIS_FIREHOSE.
+4. AWS Lambda and API Gateway
+Ensure you have the necessary IAM roles and policies set up to allow the Lambda function to interact with your AWS services.
+
+### 5. Set Up Docker
+
+Ensure Docker is installed and running on your machine. Use the following Docker Compose configuration:
+```
+version: '3.8'
+
+volumes:
+  postgres-data:
+    external: true
+  pg-admin:
+    external: true
+  mongo-data:
+    external: false
+  dynamodb-data:
+    external: false
+
+services:
+  postgres:
+    image: postgres:14.5-bullseye
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: user
+      POSTGRES_DB: postgres-data
+    ports:
+      - 15432:5432
+
+  pg-admin:
+    image: dpage/pgadmin4
+    volumes:
+      - pg-admin:/var/lib/pgadmin
+    ports:
+      - 8082:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@user.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_DISABLE_POSTFIX: 1
+
+  mongo:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - 27017:27017
+
+  dynamodb-local:
+    image: amazon/dynamodb-local
+    volumes:
+      - dynamodb-data:/home/dynamodblocal/data
+    ports:
+      - 8000:8000
+
+  express-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://user:${POSTGRES_PASSWORD}@postgres/postgres-data
+      MONGO_URI: mongodb://mongo:27017
+      DYNAMODB_ENDPOINT: http://dynamodb-local:8000
+      CORS_HOST: http://localhost:5173
+    ports:
+      - 8001:8001
+    volumes:
+      - ./api:/app
+    depends_on:
+      - postgres
+      - pg-admin
+      - mongo
+      - dynamodb-local
+
+  react-app:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - express-api
+
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566-4597:4566-4597"
+    environment:
+      - SERVICES=lambda,s3,cloudwatch,logs
+      - DEBUG=1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    depends_on:
+      - dynamodb-local
+
+```
+
+### 6. Build and Run the Application
+```
+docker compose-ip --build
+```
+
+### 7. Deploy Serverless Functions
+```
+serverless deploy
+```
+
+### 8. Access the Application
+* **Frontend:** Navigate to `http://localhost:3000` to access the React frontend
+* **Backend:** The API is available at `http://localhost:8001`
+
+## Directory Structure
+```
+joule-box/
+├── api/
+│   ├── routes/
+│   │   ├── battery.js
+│   │   ├── user.js
+│   │   ├── transactions.js
+│   │   ├── usage.js
+│   │   └── analytics.js
+│   ├── server.js
+│   ├── db.js
+│   ├── .env
+│   ├── Dockerfile
+│   └── package.json
+├── src/
+│   ├── components/
+│   │   ├── BatteryList.tsx
+│   │   └── ...
+│   ├── index.tsx
+│   ├── App.tsx
+│   ├── Dockerfile
+│   ├── .env
+│   └── package.json
+├── docker-compose.yml
+├── serverless.yml
+└── README.md
+```
+
+
+
+
+
+
+
+
+
+```
 
 1. Create AWS credentials including the following inline IAM policy:
     ```json
